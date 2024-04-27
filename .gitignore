@@ -1,0 +1,47 @@
+#No subur al repositorio
+
+#aws
+aws
+
+#nginx
+nginx
+
+#server
+server/node_modules
+server/.env
+server/Dokerfile
+
+#base de datos
+dbdata
+
+#client
+# Logs
+client/logs
+client/*.log
+client/npm-debug.log*
+client/yarn-debug.log*
+client/yarn-error.log*
+client/pnpm-debug.log*
+client/lerna-debug.log*
+
+client/node_modules
+
+# Editor directories and files
+client/.vscode/*
+client/!.vscode/extensions.json
+client/.idea
+client/.DS_Store
+client/*.suo
+client/*.ntvs*
+client/*.njsproj
+client/*.sln
+client/*.sw?
+
+#aws
+aws
+
+#conf para despliegue
+docker-compose.yml
+server/Dockerfile
+client/Dockerfile
+nginx

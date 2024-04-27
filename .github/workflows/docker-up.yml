@@ -1,0 +1,42 @@
+name: Docker CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "master" ]
+
+jobs:
+    Deploy:
+        name: Deploy to EC2
+        runs-on: ubuntu-latest
+    
+        steps:
+          - uses: actions/checkout@v2 
+          - name: Build & Deploy
+            run: |
+              echo "${{secrets.SSH_KEY}}" > private_key.pem
+              echo "${{secrets.SSL_CERTIFICATE}}" > fullchain.pem
+              echo "${{secrets.SSL_CERTIFICATE_KEY}}" > privkey.pem
+              chmod 600 private_key.pem
+              ssh -o StrictHostKeyChecking=no -i "private_key.pem" ubuntu@ec2-18-207-22-174.compute-1.amazonaws.com &&
+  
+              git checkout master &&
+              git pull origin master &&
+              sudo usermod -aG docker $USER &&
+              if [ $(sudo docker ps -q -f name=nginx) ]; then
+                sudo docker stop nginx
+              fi
+              if [ $(sudo docker ps -q -f name=back-end) ]; then
+                sudo docker stop back-end
+              fi
+              if [ $(sudo docker ps -q -f name=front-end) ]; then
+                sudo docker stop front-end
+              fi
+              if [ $(sudo docker ps -q -f name=pgadmin) ]; then
+                sudo docker stop pgadmin
+              fi
+              sudo docker-compose up --build -d &&
+              sudo docker network connect db_database-postgres_node-network back-end &&
+              sudo docker network connect db_database-postgres_node-network front-end &&
+              sudo docker network connect db_database-postgres_node-network nginx &&
+              sudo cat dump.sql | docker exec -i db psql -U postgres &&
+              exit
